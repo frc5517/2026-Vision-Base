@@ -1,0 +1,15 @@
+{
+  "imu": {
+    "type": "navx_spi",
+    "id": 0,
+    "canbus": null
+  },
+  "gyroAxis": "yaw",
+  "invertedIMU": false,
+  "modules": [
+    "frontleft.json",
+    "frontright.json",
+    "backleft.json",
+    "backright.json"
+  ]
+}
