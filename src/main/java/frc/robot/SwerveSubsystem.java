@@ -129,6 +129,17 @@ public class SwerveSubsystem extends SubsystemBase
   {
   }
 
+    /**
+     * Checks if the robot is likely moving.
+     * @param tolerance an arbitrary tuning. CTRL+Click to check the math for more info.
+     * @return whether the robot is moving.
+     */
+  public boolean isMoving(double tolerance) {
+      return (swerveDrive.getRobotVelocity().omegaRadiansPerSecond +
+                      swerveDrive.getRobotVelocity().vyMetersPerSecond +
+                      swerveDrive.getRobotVelocity().vxMetersPerSecond) / 3 > tolerance;
+  }
+
   /**
    * Setup AutoBuilder for PathPlanner.
    */

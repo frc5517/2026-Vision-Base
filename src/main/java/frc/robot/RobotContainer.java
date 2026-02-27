@@ -13,10 +13,11 @@ public class RobotContainer {
   private final InputBuilder inputs = new InputBuilder(swerve);
 
   public RobotContainer() {
-    configureBindings();
+    inputs.configureBindings();
   }
 
-  private void configureBindings() {
+  public void periodic() {
+      Telemetry.updateTelemetry();
   }
 
   public Command getAutonomousCommand() {

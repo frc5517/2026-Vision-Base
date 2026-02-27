@@ -22,7 +22,7 @@ public class Telemetry
     /// Current Telemetry Setting
     public static TelemetryVerbosity telemetryVerbosity = TelemetryVerbosity.HIGH;
     /// Telemetry Defaults
-    public static final String telemetryPath = "SmartDashboard/Telemetry/"; // Make access public for other telemetry.
+    public static final String telemetryPath = "SmartDashboard/Telemetry"; // Make access public for other telemetry.
     public static final String smartDashboardPath = "Telemetry/";
     public static final NetworkTable telemetryTable = NetworkTableInstance.getDefault().getTable(telemetryPath);
 
