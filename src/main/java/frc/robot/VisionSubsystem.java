@@ -21,7 +21,6 @@ import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import frc.robot.util.FieldConstants;
 
 import java.awt.Desktop;
 import java.util.ArrayList;
@@ -300,8 +299,7 @@ public class VisionSubsystem
   /**
    * April Tag Field Layout of the year.
    */
-  public static final AprilTagFieldLayout fieldLayout                     = AprilTagFieldLayout.loadField(
-      FieldConstants.AprilTagLayoutType.OFFICIAL);
+  public static final AprilTagFieldLayout fieldLayout                     = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
   /**
    * Ambiguity defined as a value between (0,1). Used in {@link VisionSubsystem#filterPose}.
    */
