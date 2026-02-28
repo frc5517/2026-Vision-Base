@@ -1,8 +1,11 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,89 +54,21 @@ public class InputBuilder
         final InputStream testing =
                 new InputStream().
                         startingMethods // Dumb constructor to load a different one.
-                        .headingXboxDrive(TESTING.isMode, driverXbox)
+                        .defaultXboxDrive(TESTING.isMode, driverXbox)
                         /// Initial Constants
-                        .normalRotation(1)
-                        .normalTranslation(1)
+                        .normalRotation(.5)
+                        .normalTranslation(.5)
                         .slowRotation(.4)
                         .slowTranslation(.4)
                         /// Button Bindings
                         .SwerveBindings                             /// SwerveDrive Bindings
                         .withSlowDrive(                             driverXbox.rightBumper())
-                        .withToggleCentricity(                      driverXbox.back(), true)
-                        .withResetSimOdometry(                      driverXbox.start())
-                        .updateSwerveStream()                       // Update our stream after making default drive speed changes.
+                        .withAimWhile(                              driverXbox.rightTrigger(),
+                        new Pose2d(new Translation2d(3, 3), Rotation2d.kZero), 
+                        new Trigger(() -> false), new Trigger(() -> false))
+                        .withToggleCentricity(                      driverXbox.back(), false)
+                        .withZeroGyro(                              driverXbox.start())
                         .back().MiscBindings                        /// Misc Bindings
-                        .back();
-        final InputStream easyDrive =
-                new InputStream()
-                        .startingMethods
-                        .defaultXboxDrive(EASY_DRIVE.isMode,        driverXbox)
-                        .normalRotation(.3)
-                        .normalTranslation(.3)
-                        .boostRotation(.5)
-                        .boostTranslation(.5)
-                        .SwerveBindings
-                        .withAutoLockDrive()
-                        .withBoostDrive(                            driverXbox.rightBumper())
-                        .withToggleCentricity(                      driverXbox.y(), false)
-                        .back().MiscBindings
-                        .back();
-        final InputStream mediumDrive =
-                new InputStream()
-                        .startingMethods
-                        .defaultXboxDrive(MEDIUM_DRIVE.isMode,        driverXbox)
-                        .normalRotation(.6)
-                        .normalTranslation(.6)
-                        .slowRotation(.4)
-                        .slowTranslation(.4)
-                        .boostRotation(.7)
-                        .boostTranslation(7)
-                        .SwerveBindings
-                        .withAutoLockDrive()
-                        .withSlowDrive(                             driverXbox.leftBumper())
-                        .withBoostDrive(                            driverXbox.rightBumper())
-                        .withToggleCentricity(                      driverXbox.y(), true)
-                        .back().MiscBindings
-                        .withChangeInput(MEDIUM_DRIVE.getNext(),         driverXbox.start()) // Cycle control
-                        .withChangeInput(MEDIUM_DRIVE.getPrevious(),     driverXbox.back()) // Cycle control
-                        .back();
-        final InputStream fullDrive =
-                new InputStream()
-                        .startingMethods
-                        .headingXboxDrive(FULL_DRIVE.isMode,        driverXbox)
-                        .normalRotation(.8)
-                        .normalTranslation(.8)
-                        .slowRotation(.5)
-                        .slowTranslation(.5)
-                        .boostRotation(1)
-                        .boostTranslation(1)
-                        .SwerveBindings
-                        .withAutoLockDrive()
-                        .withSlowDrive(                             driverXbox.leftBumper())
-                        .withBoostDrive(                            driverXbox.rightBumper())
-                        .withToggleCentricity(                      driverXbox.y(), true)
-                        .back().MiscBindings
-                        .back();
-        final InputStream unlocked =
-                new InputStream()
-                        .startingMethods
-                        .defaultXboxDrive(
-                                UNLOCKED_DRIVE.isMode.and(
-                                        driverXbox.pov(270)
-                                                .and(driverXbox.button(1))
-                                                .and(driverXbox.button(5))
-                                                .and(driverXbox.button(6))
-                                                .toggleOnTrue(Commands.none())), driverXbox)
-                        .normalRotation(1)
-                        .normalTranslation(1)
-                        .slowRotation(.6)
-                        .slowTranslation(.6)
-                        .SwerveBindings
-                        .withAutoLockDrive()
-                        .withSlowDrive(                             driverXbox.leftBumper())
-                        .withToggleCentricity(                      driverXbox.y(), true)
-                        .back().MiscBindings
                         .back();
     }
 
@@ -327,12 +262,12 @@ public class InputBuilder
              * Move Speed Scalar when driving normally.
              */
             @Setter
-            private double normalTranslation = .8;
+            private double normalTranslation = .4;
             /**
              * Rotation Speed Scalar when driving normally.
              */
             @Setter
-            private double normalRotation = .8;
+            private double normalRotation = .75;
             /**
              * Move Speed Scalar when boosting drive speed.
              */
@@ -470,18 +405,24 @@ public class InputBuilder
             }
 
             /**
-             * Updates the {@link SwerveInputStream} with the latest values.
+             * Resets the robot odometry. Zeros the gyro. Updates pose to real pose in sim.
              *
+             * @param zeroGyro the button to map.
              * @return this, for chaining.
              */
-            public SwerveBindings updateSwerveStream() {
-                if (!isPresent) {
-                    return this;
-                }
-                swerveInputStream
-                        .scaleTranslation(normalTranslation)
-                        .scaleRotation(normalRotation)
-                        .deadband(deadzone);
+            public SwerveBindings withZeroGyro(Trigger zeroGyro) {
+                if (!isPresent) { return this; }
+                isMode.and(zeroGyro).onTrue(Commands.runOnce(() -> {
+                    if (DriverStation.getAlliance().equals(DriverStation.Alliance.Red)) {
+                        // If red zero backwards
+                        swerve.zeroGyro();
+                        swerve.getSwerveDrive().resetOdometry(
+                            new Pose2d(swerve.getSwerveDrive().getPose().getTranslation(),
+                            Rotation2d.fromDegrees(180)));
+                    } else {
+                        swerve.getSwerveDrive().zeroGyro();
+                    }
+            }));
                 return this;
             }
 
@@ -505,6 +446,11 @@ public class InputBuilder
              * @return this InputStream.
              */
             public InputStream back() {
+                if (!isPresent) {return InputStream.this;}
+                swerveInputStream
+                        .scaleTranslation(normalTranslation)
+                        .scaleRotation(normalRotation)
+                        .deadband(deadzone);
                 return InputStream.this;
             }
         }

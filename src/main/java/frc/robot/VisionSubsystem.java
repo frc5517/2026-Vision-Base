@@ -21,6 +21,8 @@ import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import frc.robot.util.FieldConstants;
+
 import java.awt.Desktop;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +52,7 @@ public class VisionSubsystem
     /// Camera Enum to select each camera
     enum Cameras {
         /// Reef Camera
-        REEF_CAM("ReefCamera",
+        REEF_CAM("Bar_Cam",
                 new Rotation3d(
                   Math.toRadians(0), /// Camera Roll
                   Math.toRadians(0), /// Camera Pitch
@@ -59,30 +61,6 @@ public class VisionSubsystem
                   Units.inchesToMeters(3), /// Camera X Position. Left Positive from Origin.
                   Units.inchesToMeters(0), /// Camera Y Position. Front Positive from Origin.
                   Units.inchesToMeters(13)), /// Camera Z Position. Up Positive from Origin, Origin is on the floor, not bellypan. 
-                  VecBuilder.fill(4, 4, 8), /// Noise Values, don't change these.
-                  VecBuilder.fill(0.5, 0.5, 1)), /// Also Noise Values.
-        /// Climb Camera
-        CLIMB_CAMERA("ClimbCamera",
-                new Rotation3d(
-                  Math.toRadians(0), /// Camera Roll
-                  Math.toRadians(35), /// Camera Pitch
-                  Math.toRadians(0)), /// Camera Yaw
-                new Translation3d(
-                  Units.inchesToMeters(4), /// Camera X Position. Left Positive from Origin.
-                  Units.inchesToMeters(0), /// Camera Y Position. Front Positive from Origin.
-                  Units.inchesToMeters(35)), /// Camera Z Position. Up Positive from Origin, Origin is on the floor, not bellypan. 
-                  VecBuilder.fill(4, 4, 8), /// Noise Values, don't change these.
-                  VecBuilder.fill(0.5, 0.5, 1)), /// Also Noise Values.
-        /// Center Camera
-        INTAKE_CAMERA("IntakeCamera",
-                new Rotation3d(
-                  Math.toRadians(0), /// Camera Roll
-                  Math.toRadians(-35), /// Camera Pitch
-                  Math.toRadians(0)), /// Camera Yaw
-                new Translation3d(
-                  Units.inchesToMeters(4), /// Camera X Position. Left Positive from Origin.
-                  Units.inchesToMeters(-6.75), /// Camera Y Position. Front Positive from Origin.
-                  Units.inchesToMeters(34)), /// Camera Z Position. Up Positive from Origin, Origin is on the floor, not bellypan. 
                   VecBuilder.fill(4, 4, 8), /// Noise Values, don't change these.
                   VecBuilder.fill(0.5, 0.5, 1)); /// Also Noise Values.
 
@@ -323,7 +301,7 @@ public class VisionSubsystem
    * April Tag Field Layout of the year.
    */
   public static final AprilTagFieldLayout fieldLayout                     = AprilTagFieldLayout.loadField(
-      AprilTagFields.k2025ReefscapeAndyMark);
+      FieldConstants.AprilTagLayoutType.OFFICIAL);
   /**
    * Ambiguity defined as a value between (0,1). Used in {@link VisionSubsystem#filterPose}.
    */
